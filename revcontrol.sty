@@ -1,0 +1,43 @@
+\ProvidesPackage{revcontrol}
+
+%%
+%% Increments \getdocversion by 1 every build
+%%
+
+% Writes the data file
+\def\DocVerWriteFile#1{
+	\newwrite\verfileW
+	\immediate\openout\verfileW=\jobname-versioning.tex
+	%\immediate\write\verfileW{\advance\docversion by #1}
+	\immediate\write\verfileW{\docversion=#1}
+	\immediate\closeout\verfileW
+}
+
+% Increments the loaded build counter
+\def\DocVerIncrement{
+	\advance\docversion by 1
+}
+
+% Creates a new counter starting at 0
+\newcount\docversion
+
+% Reads data file
+\newread\verfileR
+\immediate\openin\verfileR=\jobname-versioning.tex
+\ifeof\verfileR
+	% If first build with this package
+	\DocVerWriteFile{0} %initialize it
+\fi
+\immediate\closein\verfileR
+
+% Load stored build number
+\input{\jobname-versioning.tex}
+
+% Increment loaded build number
+\DocVerIncrement
+
+% Store new build number in data file
+\DocVerWriteFile{\the\docversion}
+
+\newcommand{\getdocversion}{\number\docversion}
+\newcommand{\getdocbuild}{\begin{center}\textbf{Build: \#\getdocversion}\end{center}}
